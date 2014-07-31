@@ -98,6 +98,7 @@ class Wechat
 	private $paysignkey;
 	private $_msg;
 	private $_receive;
+	private $_postStr;
 	public $debug =  false;
 	public $errCode = 40001;
 	public $errMsg = "no access";
@@ -195,15 +196,23 @@ class Wechat
     }
     
     /**
+     * 获取微信服务器发来的原始信息
+     */
+	public function getRaw()
+	{
+		return $this->_postStr;
+	}
+    
+    /**
      * 获取微信服务器发来的信息
      */
 	public function getRev()
 	{
 		if ($this->_receive) return $this;
-		$postStr = file_get_contents("php://input");
-		$this->log($postStr);
-		if (!empty($postStr)) {
-			$this->_receive = (array)simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
+		$this->_postStr = file_get_contents("php://input");		
+		$this->log($this->_postStr);
+		if (!empty($this->_postStr)) {
+			$this->_receive = (array)simplexml_load_string($this->_postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
 		}
 		return $this;
 	}
