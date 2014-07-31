@@ -634,8 +634,6 @@ class Wechat
 		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1 );
 		$sContent = curl_exec($oCurl);
 		$aStatus = curl_getinfo($oCurl);
-		var_dump($aStatus);
-		exit;
 		curl_close($oCurl);
 		if(intval($aStatus["http_code"])==200){
 			return array('content' => $sContent, 'content-type' => $aStatus['content_type']);
