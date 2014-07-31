@@ -97,7 +97,6 @@ class Wechat
 	private $partnerkey;
 	private $paysignkey;
 	private $_msg;
-	private $_funcflag = false;
 	private $_receive;
 	public $debug =  false;
 	public $errCode = 40001;
@@ -186,11 +185,6 @@ class Wechat
     		} else {
     			return $this->_msg;
     		}
-    }
-    
-    public function setFuncFlag($flag) {
-    		$this->_funcflag = $flag;
-    		return $this;
     }
     
     private function log($log){
@@ -452,14 +446,12 @@ class Wechat
 	 */
 	public function text($text='')
 	{
-		$FuncFlag = $this->_funcflag ? 1 : 0;
 		$msg = array(
 			'ToUserName' => $this->getRevFrom(),
 			'FromUserName'=>$this->getRevTo(),
 			'MsgType'=>self::MSGTYPE_TEXT,
 			'Content'=>$text,
-			'CreateTime'=>time(),
-			'FuncFlag'=>$FuncFlag
+			'CreateTime'=>time()
 		);
 		$this->Message($msg);
 		return $this;
@@ -473,7 +465,6 @@ class Wechat
 	 * @param string $hgmusicurl
 	 */
 	public function music($title,$desc,$musicurl,$hgmusicurl='') {
-		$FuncFlag = $this->_funcflag ? 1 : 0;
 		$msg = array(
 			'ToUserName' => $this->getRevFrom(),
 			'FromUserName'=>$this->getRevTo(),
@@ -484,8 +475,7 @@ class Wechat
 				'Description'=>$desc,
 				'MusicUrl'=>$musicurl,
 				'HQMusicUrl'=>$hgmusicurl
-			),
-			'FuncFlag'=>$FuncFlag
+			)
 		);
 		$this->Message($msg);
 		return $this;
@@ -507,7 +497,6 @@ class Wechat
 	 */
 	public function news($newsData=array())
 	{
-		$FuncFlag = $this->_funcflag ? 1 : 0;
 		$count = count($newsData);
 		
 		$msg = array(
@@ -516,8 +505,7 @@ class Wechat
 			'MsgType'=>self::MSGTYPE_NEWS,
 			'CreateTime'=>time(),
 			'ArticleCount'=>$count,
-			'Articles'=>$newsData,
-			'FuncFlag'=>$FuncFlag
+			'Articles'=>$newsData
 		);
 		$this->Message($msg);
 		return $this;
