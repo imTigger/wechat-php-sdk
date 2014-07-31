@@ -621,6 +621,30 @@ class Wechat
 	}
 	
 	/**
+	 * GET 档案请求
+	 * @param string $url
+	 */
+	private function http_get_file($url){
+		$oCurl = curl_init();
+		if(stripos($url,"https://")!==FALSE){
+			curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, FALSE);
+		}
+		curl_setopt($oCurl, CURLOPT_URL, $url);
+		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1 );
+		$sContent = curl_exec($oCurl);
+		$aStatus = curl_getinfo($oCurl);
+		var_dump($aStatus);
+		exit;
+		curl_close($oCurl);
+		if(intval($aStatus["http_code"])==200){
+			return array('content' => $sContent, 'content-type' => $aStatus['content_type']);
+		}else{
+			return false;
+		}
+	}
+	
+	/**
 	 * POST 请求
 	 * @param string $url
 	 * @param array $param
@@ -871,6 +895,16 @@ class Wechat
 			return $json['media_id'];
 		}
 		return false;
+	}
+	
+	/**
+	 * 根据媒体文件ID获取媒体文件
+	 * @param string $media_id 媒体文件id
+	 * @return raw data
+	 */
+	public function getMedia($media_id){
+		if (!$this->access_token && !$this->checkAuth()) return false;
+		return $this->http_get_file(self::UPLOAD_MEDIA_URL.self::MEDIA_GET_URL.'access_token='.$this->access_token.'&media_id='.$media_id);
 	}
 	
 	/**
