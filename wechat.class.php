@@ -458,6 +458,66 @@ class Wechat
 	}
 	
 	/**
+	 * 设置回复图片
+	 * Examle: $obj->image($media_id)->reply();
+	 * @param string $media_id
+	 */
+	public function image($media_id)
+	{
+		$msg = array(
+			'ToUserName' => $this->getRevFrom(),
+			'FromUserName'=>$this->getRevTo(),
+			'MsgType'=>self::MSGTYPE_IMAGE,
+			'Image'=> array('MediaId'=>$media_id),
+			'CreateTime'=>time()
+		);
+		$this->Message($msg);
+		return $this;
+	}
+	
+	/**
+	 * 设置回复语音
+	 * Examle: $obj->voice($media_id)->reply();
+	 * @param string $media_id
+	 */
+	public function voice($media_id)
+	{
+		$msg = array(
+			'ToUserName' => $this->getRevFrom(),
+			'FromUserName'=>$this->getRevTo(),			
+			'MsgType'=>self::MSGTYPE_VOICE,
+			'Voice'=> array('MediaId'=>$media_id),
+			'CreateTime'=>time()			
+		);
+		$this->Message($msg);
+		return $this;
+	}
+	
+	/**
+	 * 设置回复视频
+	 * Examle: $obj->video($media_id)->reply();
+	 * @param string $media_id
+	 * @param string $title
+	 * @param string $desc
+	 */
+	public function video($media_id,$title,$desc)
+	{
+		$msg = array(
+			'ToUserName' => $this->getRevFrom(),
+			'FromUserName'=>$this->getRevTo(),
+			'CreateTime'=>time(),
+			'MsgType'=>self::MSGTYPE_VIDEO,
+			'Video'=> array(
+				'MediaId'=>$media_id,
+				'Title'=>$title,
+				'Description'=>$desc
+			)			
+		);
+		$this->Message($msg);
+		return $this;
+	}
+	
+	/**
 	 * 设置回复音乐
 	 * @param string $title
 	 * @param string $desc
