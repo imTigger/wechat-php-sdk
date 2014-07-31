@@ -619,25 +619,31 @@ class Wechat
 	 * @param array $param
 	 * @return string content
 	 */
-	private function http_post($url,$param){
+	private function http_post($url,$param,$no_encode = false){
 		$oCurl = curl_init();
 		if(stripos($url,"https://")!==FALSE){
 			curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, false);
 		}
-		if (is_string($param)) {
-			$strPOST = $param;
+		
+		if ($no_encode) {
+			$postData = $param;
 		} else {
-			$aPOST = array();
-			foreach($param as $key=>$val){
-				$aPOST[] = $key."=".urlencode($val);
+			if (is_string($param)) {
+				$postData = $param;
+			} else {
+				$aPOST = array();
+				foreach($param as $key=>$val){
+					$aPOST[] = $key."=".urlencode($val);
+				}
+				$postData =  join("&", $aPOST);
 			}
-			$strPOST =  join("&", $aPOST);
 		}
+		curl_setopt($oCurl, CURLOPT_POST, true);
+		@curl_setopt($oCurl, CURLOPT_POSTFIELDS, $postData);
 		curl_setopt($oCurl, CURLOPT_URL, $url);
-		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt($oCurl, CURLOPT_POST,true);
-		curl_setopt($oCurl, CURLOPT_POSTFIELDS,$strPOST);
+		curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
+				
 		$sContent = curl_exec($oCurl);
 		$aStatus = curl_getinfo($oCurl);
 		curl_close($oCurl);
@@ -825,12 +831,13 @@ class Wechat
 
 	/**
 	 * 上传多媒体文件
-	 * @param array $data 消息结构{ "touser":[ "OPENID1", "OPENID2" ], "mpnews":{ "media_id":"123dsdajkasd231jhksad" }, "msgtype":"mpnews" }
-	 * @return raw data
+	 * @param array $data array()
+	 * @param string $type
+	 * @return mixed media_id
 	 */
-	public function uploadMedia($data, $type){
+	public function uploadMedia($path, $type){
 		if (!$this->access_token && !$this->checkAuth()) return false;
-		$result = $this->http_post(self::UPLOAD_MEDIA_URL.self::MEDIA_UPLOAD.'access_token='.$this->access_token.'&type='.$type,$data);
+		$result = $this->http_post(self::UPLOAD_MEDIA_URL.self::MEDIA_UPLOAD.'access_token='.$this->access_token.'&type='.$type,array('media'=>"@$path"),true);
 		if ($result)
 		{
 			$json = json_decode($result,true);
@@ -839,32 +846,11 @@ class Wechat
 				$this->errMsg = $json['errmsg'];
 				return false;
 			}
-			return $json;
+			return $json['media_id'];
 		}
 		return false;
 	}
 	
-	/**
-	 * 根据媒体文件ID获取媒体文件
-	 * @param string $media_id 媒体文件id
-	 * @return raw data
-	 */
-	public function getMedia($media_id){
-		if (!$this->access_token && !$this->checkAuth()) return false;
-		$result = $this->http_get(self::UPLOAD_MEDIA_URL.self::MEDIA_GET_URL.'access_token='.$this->access_token.'&media_id='.$media_id);
-		if ($result)
-		{
-			$json = json_decode($result,true);
-			if (isset($json['errcode'])) {
-				$this->errCode = $json['errcode'];
-				$this->errMsg = $json['errmsg'];
-				return false;
-			}
-			return $json;
-		}
-		return false;
-	}
-
 	/**
 	 * 上传图文消息素材
 	 * @param array $data 消息结构{"articles":[{...}]}
