@@ -655,17 +655,21 @@ class Wechat
 	}
 	
 	/**
-	 * 通用auth验证方法，暂时仅用于菜单更新操作
-	 * @param string $appid
-	 * @param string $appsecret
+	 * 检查验证
 	 */
-	public function checkAuth($appid='',$appsecret=''){
-		if (!$appid || !$appsecret) {
-			$appid = $this->appid;
-			$appsecret = $this->appsecret;
+	public function checkAuth(){
+		if (isset($this->access_token)) {
+			return $this->access_token;
+		} else {
+			return $this->getAuth();
 		}
-		//TODO: get the cache access_token
-		$result = $this->http_get(self::API_URL_PREFIX.self::AUTH_URL.'appid='.$appid.'&secret='.$appsecret);
+	}
+	
+	/**
+	 * 通用auth验证方法
+	 */
+	public function getAuth(){
+		$result = $this->http_get(self::API_URL_PREFIX.self::AUTH_URL.'appid='.$this->appid.'&secret='.$this->appsecret);
 		if ($result)
 		{
 			$json = json_decode($result,true);
@@ -675,21 +679,27 @@ class Wechat
 				return false;
 			}
 			$this->access_token = $json['access_token'];
-			$expire = $json['expires_in'] ? intval($json['expires_in'])-100 : 3600;
-			//TODO: cache access_token
+			
 			return $this->access_token;
 		}
 		return false;
+	}
+	
+	/**
+	 * 設定验证数据
+	 * @param string $appid
+	 */
+	public function setAuth($access_token){
+		$this->access_token = $access_token;
+		return true;
 	}
 
 	/**
 	 * 删除验证数据
 	 * @param string $appid
 	 */
-	public function resetAuth($appid=''){
-		if (!$appid) $appid = $this->appid;
+	public function resetAuth(){
 		$this->access_token = '';
-		//TODO: remove cache
 		return true;
 	}
 		
