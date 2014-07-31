@@ -281,9 +281,16 @@ class Wechat
 	/**
 	 * 获取接收消息图片
 	 */
-	public function getRevPic(){
+	public function getRevPic($need_media_id = false){
 		if (isset($this->_receive['PicUrl']))
-			return $this->_receive['PicUrl'];
+			if ($need_media_id) {
+				return $this->_receive['PicUrl'];
+			} else {
+				return array(
+					'url'=>$this->_receive['PicUrl'],
+					'mediaid'=>$this->_receive['MediaId']
+				);
+			}
 		else 
 			return false;
 	}
