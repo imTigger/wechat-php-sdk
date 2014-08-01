@@ -354,7 +354,7 @@ class Wechat
 		if (isset($this->_receive['Event'])){
 			return array(
 				'event'=>$this->_receive['Event'],
-				'key'=>$this->_receive['EventKey'],
+				'key'=> isset($this->_receive['EventKey']) ? $this->_receive['EventKey'] : NULL,
 			);
 		} else 
 			return false;
